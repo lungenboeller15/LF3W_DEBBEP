@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deckungsbeitrag & Break-Even – Lernhilfe</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@300;400;500&family=DM+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:       #F5F2EE;
+    --surface:  #FDFBF9;
+    --border:   #E2DDD7;
+    --text:     #1C1A17;
+    --muted:    #7A746C;
+    --accent:   #2D5A3D;
+    --accent-l: #E8F2EC;
+    --blue:     #1E3A6E;
+    --blue-l:   #E8EEF8;
+    --amber:    #7A4B00;
+    --amber-l:  #FDF0DC;
+    --red:      #7A1C1C;
+    --red-l:    #FDE8E8;
+    --mono:     'DM Mono', monospace;
+    --serif:    'DM Serif Display', serif;
+    --sans:     'DM Sans', sans-serif;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 16px;
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--text);
+    color: #F5F2EE;
+    padding: 48px 40px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  header::after {
+    content: '';
+    position: absolute;
+    right: -60px; top: -60px;
+    width: 300px; height: 300px;
+    border-radius: 50%;
+    border: 60px solid rgba(255,255,255,.04);
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    right: 80px; bottom: -40px;
+    width: 180px; height: 180px;
+    border-radius: 50%;
+    border: 40px solid rgba(255,255,255,.04);
+  }
+  .header-tag {
+    font-size: 11px; font-weight: 500; letter-spacing: .12em;
+    text-transform: uppercase; color: #9E9A94;
+    margin-bottom: 12px;
+  }
+  header h1 {
+    font-family: var(--serif);
+    font-size: clamp(28px, 5vw, 44px);
+    font-weight: 400; line-height: 1.15;
+    margin-bottom: 10px;
+  }
+  header p {
+    color: #B0A89E; font-size: 15px; font-weight: 300;
+    max-width: 520px;
+  }
+
+  /* ── Nav ── */
+  nav {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 0 40px;
+    display: flex; gap: 0;
+    overflow-x: auto;
+    position: sticky; top: 0; z-index: 99;
+  }
+  .nav-btn {
+    background: none; border: none;
+    padding: 16px 20px;
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    color: var(--muted); cursor: pointer;
+    border-bottom: 2px solid transparent;
+    white-space: nowrap;
+    transition: color .15s, border-color .15s;
+  }
+  .nav-btn.active { color: var(--text); border-bottom-color: var(--text); }
+  .nav-btn:hover:not(.active) { color: var(--text); }
+
+  /* ── Main layout ── */
+  main { max-width: 820px; margin: 0 auto; padding: 40px 24px 80px; }
+
+  .section { display: none; }
+  .section.active { display: block; }
+
+  /* ── Section titles ── */
+  .section-heading {
+    font-family: var(--serif); font-size: 26px; font-weight: 400;
+    margin-bottom: 6px;
+  }
+  .section-sub { color: var(--muted); font-size: 14px; margin-bottom: 28px; }
+
+  /* ── Theory Cards ── */
+  .theory-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 16px;
+  }
+  .pill {
+    display: inline-block; font-size: 11px; font-weight: 500;
+    letter-spacing: .06em; text-transform: uppercase;
+    padding: 3px 10px; border-radius: 20px; margin-bottom: 10px;
+  }
+  .pill-blue  { background: var(--blue-l);  color: var(--blue); }
+  .pill-green { background: var(--accent-l); color: var(--accent); }
+  .pill-amber { background: var(--amber-l); color: var(--amber); }
+  .pill-red   { background: var(--red-l);   color: var(--red); }
+
+  .theory-card h3 {
+    font-size: 15px; font-weight: 500; margin-bottom: 8px;
+  }
+  .theory-card p, .theory-card li {
+    font-size: 14px; color: var(--muted); line-height: 1.7;
+  }
+  .theory-card ul { padding-left: 18px; margin-top: 6px; }
+  .theory-card li { margin-bottom: 4px; }
+
+  .formula-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: var(--mono);
+    font-size: 13.5px;
+    margin: 8px 0;
+    color: var(--text);
+    letter-spacing: .02em;
+  }
+  .formula-box .hi { color: var(--accent); font-weight: 500; }
+
+  .two-col {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px;
+  }
+  @media (max-width: 560px) { .two-col { grid-template-columns: 1fr; } }
+
+  /* ── Exercise Cards ── */
+  .ex-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 24px 28px;
+    margin-bottom: 20px;
+    transition: border-color .2s;
+  }
+  .ex-card:focus-within { border-color: #AAAAAA; }
+
+  .ex-meta {
+    display: flex; align-items: center; gap: 10px; margin-bottom: 12px;
+  }
+  .ex-num {
+    font-family: var(--mono); font-size: 11px;
+    background: var(--bg); border: 1px solid var(--border);
+    padding: 2px 8px; border-radius: 4px; color: var(--muted);
+  }
+  .ex-type { font-size: 11px; color: var(--muted); font-weight: 500; letter-spacing: .05em; text-transform: uppercase; }
+
+  .ex-text {
+    font-size: 14px; line-height: 1.75; margin-bottom: 16px; color: var(--text);
+  }
+  .ex-text strong { font-weight: 500; }
+
+  .ex-given {
+    background: var(--bg); border: 1px solid var(--border);
+    border-radius: 8px; padding: 12px 16px; margin-bottom: 16px;
+    font-size: 13px; color: var(--muted);
+    display: flex; flex-wrap: wrap; gap: 12px;
+  }
+  .given-item { display: flex; gap: 6px; align-items: center; }
+  .given-label { font-weight: 500; color: var(--text); }
+
+  .input-row {
+    display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+    margin-bottom: 10px;
+  }
+  .input-label { font-size: 13px; color: var(--muted); flex: 1; min-width: 200px; }
+  .ex-input {
+    width: 130px; padding: 8px 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); font-family: var(--mono);
+    font-size: 14px; color: var(--text);
+    outline: none; transition: border-color .15s;
+  }
+  .ex-input:focus { border-color: var(--text); }
+
+  .check-btn {
+    margin-top: 12px; padding: 9px 22px;
+    background: var(--text); color: var(--bg);
+    border: none; border-radius: 8px;
+    font-family: var(--sans); font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: opacity .15s;
+  }
+  .check-btn:hover { opacity: .85; }
+
+  .feedback {
+    display: none; margin-top: 14px;
+    padding: 12px 16px; border-radius: 8px;
+    font-size: 13px; line-height: 1.7;
+  }
+  .fb-ok  { background: var(--accent-l); color: var(--accent); border: 1px solid #B8D9C4; }
+  .fb-err { background: var(--red-l);    color: var(--red);    border: 1px solid #F5BEBE; }
+  .feedback strong { font-weight: 500; }
+
+  /* ── Calculator ── */
+  .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  @media (max-width: 600px) { .calc-grid { grid-template-columns: 1fr; } }
+
+  .calc-card {
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 12px; padding: 24px;
+  }
+  .calc-card h3 { font-size: 15px; font-weight: 500; margin-bottom: 18px; }
+
+  .calc-row { margin-bottom: 14px; }
+  .calc-row label { display: block; font-size: 12px; color: var(--muted); margin-bottom: 5px; font-weight: 500; letter-spacing: .04em; text-transform: uppercase; }
+  .calc-input {
+    width: 100%; padding: 9px 12px;
+    border: 1px solid var(--border); border-radius: 8px;
+    background: var(--bg); font-family: var(--mono);
+    font-size: 14px; color: var(--text); outline: none;
+    transition: border-color .15s;
+  }
+  .calc-input:focus { border-color: var(--text); }
+
+  .result-card {
+    background: var(--text); border-radius: 10px;
+    padding: 18px 20px; margin-top: 4px;
+  }
+  .result-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,.08);
+  }
+  .result-row:last-child { border-bottom: none; }
+  .result-key { font-size: 12px; color: #9E9A94; font-weight: 300; }
+  .result-val { font-family: var(--mono); font-size: 14px; font-weight: 500; color: #F5F2EE; }
+  .result-val.pos { color: #7EC99A; }
+  .result-val.neg { color: #F09595; }
+
+  .formula-list { list-style: none; }
+  .formula-list li {
+    padding: 8px 0; border-bottom: 1px solid var(--border);
+    font-size: 13px;
+  }
+  .formula-list li:last-child { border-bottom: none; }
+  .f-name { color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+  .f-expr { font-family: var(--mono); color: var(--text); }
+  .f-expr .hi { color: var(--accent); }
+
+  /* ── Progress ── */
+  .progress-bar-wrap {
+    display: flex; align-items: center; gap: 12px; margin-bottom: 28px;
+  }
+  .progress-bar {
+    flex: 1; height: 4px; background: var(--border); border-radius: 2px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent);
+    border-radius: 2px; transition: width .3s;
+  }
+  .progress-text { font-size: 12px; color: var(--muted); white-space: nowrap; }
+
+  /* ── Responsive tweaks ── */
+  @media (max-width: 480px) {
+    header { padding: 32px 20px; }
+    nav { padding: 0 12px; }
+    main { padding: 28px 16px 60px; }
+    .theory-card, .ex-card { padding: 18px 18px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-tag">BWL · Kostenrechnung</div>
+  <h1>Deckungsbeitrag &<br>Break-Even-Point</h1>
+  <p>Kompakte Theorie, 15 Übungsaufgaben und ein interaktiver Rechner – alles auf einen Blick.</p>
+</header>
+
+<nav>
+  <button class="nav-btn active" onclick="showTab('theorie', this)">Theorie</button>
+  <button class="nav-btn" onclick="showTab('aufgaben', this)">Aufgaben (15)</button>
+  <button class="nav-btn" onclick="showTab('rechner', this)">Rechner</button>
+</nav>
+
+<main>
+
+<!-- ══════════════ THEORIE ══════════════ -->
+<div class="section active" id="theorie">
+  <div class="section-heading">Theorie auf einen Blick</div>
+  <p class="section-sub">Alle relevanten Formeln und Konzepte zur Deckungsbeitragsrechnung (DB I) und zum Break-Even-Point.</p>
+
+  <div class="theory-card">
+    <span class="pill pill-blue">Grundbegriffe</span>
+    <h3>Fixkosten vs. Variable Kosten</h3>
+    <p><strong>Fixkosten (K<sub>f</sub>):</strong> Fallen unabhängig von der Produktionsmenge an – z.B. Miete, Gehälter, Versicherungen.</p>
+    <ul>
+      <li>Ändern sich <em>nicht</em> mit der Stückzahl</li>
+      <li>Müssen immer bezahlt werden, auch ohne Produktion</li>
+    </ul>
+    <br>
+    <p><strong>Variable Kosten (k<sub>v</sub>):</strong> Steigen proportional mit der Menge – z.B. Material, Energie, Akkordlohn.</p>
+    <ul>
+      <li>Variable Gesamtkosten: K<sub>v</sub> = k<sub>v</sub> × x</li>
+      <li>Gesamtkosten: K<sub>ges</sub> = K<sub>f</sub> + k<sub>v</sub> × x</li>
+    </ul>
+  </div>
+
+  <div class="two-col">
+    <div class="theory-card">
+      <span class="pill pill-green">Stück-DB</span>
+      <h3>Deckungsbeitrag je Stück</h3>
+      <div class="formula-box"><span class="hi">db</span> = p − k<sub>v</sub></div>
+      <p>p = Verkaufspreis pro Stück<br>k<sub>v</sub> = variable Kosten pro Stück</p>
+    </div>
+    <div class="theory-card">
+      <span class="pill pill-amber">Gesamt-DB (DB I)</span>
+      <h3>Gesamter Deckungsbeitrag</h3>
+      <div class="formula-box"><span class="hi">DB</span> = db × x</div>
+      <div class="formula-box"><span class="hi">DB</span> = Umsatz − K<sub>v</sub></div>
+      <p>x = abgesetzte Menge in Stück</p>
+    </div>
+  </div>
+
+  <div class="theory-card">
+    <span class="pill pill-green">DB-Quote</span>
+    <h3>Deckungsbeitragsquote (DBQ)</h3>
+    <div class="formula-box"><span class="hi">DBQ</span> = db / p × 100 %</div>
+    <div class="formula-box"><span class="hi">DBQ</span> = DB / Umsatz × 100 %</div>
+    <p>Die DBQ gibt an, wie viel Prozent des Umsatzes als Deckungsbeitrag verbleiben. Je höher, desto „ergiebiger" das Produkt.</p>
+  </div>
+
+  <div class="theory-card">
+    <span class="pill pill-blue">Break-Even-Point</span>
+    <h3>Gewinnschwelle (BEP)</h3>
+    <p>Am Break-Even-Point gilt: Gesamterlöse = Gesamtkosten → weder Gewinn noch Verlust.</p>
+    <div class="formula-box"><span class="hi">BEP<sub>Menge</sub></span> = K<sub>f</sub> / db</div>
+    <div class="formula-box"><span class="hi">BEP<sub>Umsatz</sub></span> = K<sub>f</sub> / DBQ × 100</div>
+    <p style="margin-top:8px">Unterhalb des BEP → Verlust | Oberhalb des BEP → Gewinn</p>
+  </div>
+
+  <div class="two-col">
+    <div class="theory-card">
+      <span class="pill pill-green">Gewinn</span>
+      <h3>Gewinn / Verlust</h3>
+      <div class="formula-box"><span class="hi">G</span> = DB − K<sub>f</sub></div>
+      <div class="formula-box"><span class="hi">G</span> = (x − BEP) × db</div>
+    </div>
+    <div class="theory-card">
+      <span class="pill pill-amber">Zielgewinn</span>
+      <h3>Menge für Zielgewinn</h3>
+      <div class="formula-box"><span class="hi">x</span> = (K<sub>f</sub> + G<sub>Ziel</sub>) / db</div>
+      <p>Wie viele Stück nötig, um einen bestimmten Gewinn zu erzielen?</p>
+    </div>
+  </div>
+
+  <div class="theory-card">
+    <span class="pill pill-red">Sicherheitsabstand</span>
+    <h3>Sicherheitsmenge & Sicherheitsquote</h3>
+    <div class="formula-box"><span class="hi">S<sub>Menge</sub></span> = x<sub>aktuell</sub> − BEP</div>
+    <div class="formula-box"><span class="hi">S<sub>Quote</sub></span> = S<sub>Menge</sub> / x<sub>aktuell</sub> × 100 %</div>
+    <p>Der Sicherheitsabstand zeigt, um wie viel die Absatzmenge sinken darf, bevor ein Verlust entsteht.</p>
+  </div>
+</div>
+
+<!-- ══════════════ AUFGABEN ══════════════ -->
+<div class="section" id="aufgaben">
+  <div class="section-heading">15 Übungsaufgaben</div>
+  <p class="section-sub">Gib deine Antwort ein und klicke auf „Prüfen" – du bekommst sofort Feedback mit dem vollständigen Lösungsweg.</p>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar"><div class="progress-fill" id="prog-fill" style="width:0%"></div></div>
+    <div class="progress-text" id="prog-text">0 / 15 gelöst</div>
+  </div>
+
+  <!-- A1 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">01</span><span class="ex-type">Stück-DB &amp; DB-Quote</span></div>
+    <div class="ex-text">Ein Unternehmen verkauft ein Produkt für <strong>120 €</strong>. Die variablen Kosten betragen <strong>75 € pro Stück</strong>.<br>a) Wie hoch ist der Stück-Deckungsbeitrag?<br>b) Wie hoch ist die Deckungsbeitragsquote?</div>
+    <div class="input-row"><span class="input-label">a) Stück-DB in €</span><input class="ex-input" id="a1a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) DB-Quote in %</span><input class="ex-input" id="a1b" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(1)">Prüfen</button>
+    <div class="feedback" id="f1"></div>
+  </div>
+
+  <!-- A2 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">02</span><span class="ex-type">Break-Even-Point</span></div>
+    <div class="ex-text">Ein Betrieb hat <strong>Fixkosten von 90.000 €</strong>. Verkaufspreis: <strong>50 €/Stück</strong>, variable Kosten: <strong>20 €/Stück</strong>.<br>a) Wie viele Stück muss das Unternehmen mindestens verkaufen (BEP)?<br>b) Was ist der Break-Even-Umsatz in €?</div>
+    <div class="input-row"><span class="input-label">a) BEP-Menge in Stück</span><input class="ex-input" id="a2a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) BEP-Umsatz in €</span><input class="ex-input" id="a2b" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(2)">Prüfen</button>
+    <div class="feedback" id="f2"></div>
+  </div>
+
+  <!-- A3 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">03</span><span class="ex-type">Gewinnermittlung</span></div>
+    <div class="ex-text">Gegeben: Fixkosten = <strong>60.000 €</strong>, Stück-DB = <strong>40 €</strong>, verkaufte Menge = <strong>2.000 Stück</strong>.<br>Wie hoch ist der Gewinn oder Verlust?</div>
+    <div class="input-row"><span class="input-label">Gewinn / Verlust in €</span><input class="ex-input" id="a3" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(3)">Prüfen</button>
+    <div class="feedback" id="f3"></div>
+  </div>
+
+  <!-- A4 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">04</span><span class="ex-type">Zielgewinnmenge</span></div>
+    <div class="ex-text">Ein Unternehmen will einen <strong>Gewinn von 25.000 €</strong> erzielen. Fixkosten: <strong>50.000 €</strong>, Stück-DB: <strong>15 €</strong>.<br>Wie viele Einheiten müssen verkauft werden?</div>
+    <div class="input-row"><span class="input-label">Benötigte Menge in Stück</span><input class="ex-input" id="a4" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(4)">Prüfen</button>
+    <div class="feedback" id="f4"></div>
+  </div>
+
+  <!-- A5 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">05</span><span class="ex-type">DB-Quote anwenden</span></div>
+    <div class="ex-text">Der Umsatz eines Unternehmens beträgt <strong>400.000 €</strong>. Die Deckungsbeitragsquote liegt bei <strong>35 %</strong> und die Fixkosten bei <strong>100.000 €</strong>.<br>a) Wie hoch ist der gesamte DB?<br>b) Wie hoch ist der Gewinn?</div>
+    <div class="input-row"><span class="input-label">a) Gesamt-DB in €</span><input class="ex-input" id="a5a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) Gewinn in €</span><input class="ex-input" id="a5b" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(5)">Prüfen</button>
+    <div class="feedback" id="f5"></div>
+  </div>
+
+  <!-- A6 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">06</span><span class="ex-type">Preiskalkulation</span></div>
+    <div class="ex-text">Die variablen Kosten eines Produkts betragen <strong>48 € pro Stück</strong>. Der Stück-DB soll mindestens <strong>32 €</strong> betragen.<br>Wie hoch muss der Mindest-Verkaufspreis sein?</div>
+    <div class="input-row"><span class="input-label">Mindest-Verkaufspreis in €</span><input class="ex-input" id="a6" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(6)">Prüfen</button>
+    <div class="feedback" id="f6"></div>
+  </div>
+
+  <!-- A7 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">07</span><span class="ex-type">Produktvergleich</span></div>
+    <div class="ex-text">Zwei Produkte im Vergleich:<br>
+    <strong>Produkt A:</strong> Preis 80 €, variable Kosten 52 €<br>
+    <strong>Produkt B:</strong> Preis 130 €, variable Kosten 94 €<br>
+    a) Stück-DB von Produkt A in €?<br>
+    b) Stück-DB von Produkt B in €?<br>
+    c) Welches Produkt hat die höhere DB-Quote? Gib die Quote des besseren Produkts an (%).</div>
+    <div class="input-row"><span class="input-label">a) db Produkt A in €</span><input class="ex-input" id="a7a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) db Produkt B in €</span><input class="ex-input" id="a7b" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">c) Höhere DBQ in %</span><input class="ex-input" id="a7c" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(7)">Prüfen</button>
+    <div class="feedback" id="f7"></div>
+  </div>
+
+  <!-- A8 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">08</span><span class="ex-type">Sicherheitsabstand</span></div>
+    <div class="ex-text">Ein Unternehmen verkauft aktuell <strong>3.500 Stück</strong>. Der Break-Even-Point liegt bei <strong>2.100 Stück</strong>.<br>a) Wie hoch ist die Sicherheitsmenge (in Stück)?<br>b) Wie hoch ist die Sicherheitsquote (in %)?</div>
+    <div class="input-row"><span class="input-label">a) Sicherheitsmenge in Stück</span><input class="ex-input" id="a8a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) Sicherheitsquote in %</span><input class="ex-input" id="a8b" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(8)">Prüfen</button>
+    <div class="feedback" id="f8"></div>
+  </div>
+
+  <!-- A9 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">09</span><span class="ex-type">Preissenkung &amp; neuer BEP</span></div>
+    <div class="ex-text">Bisher: Preis <strong>90 €</strong>, variable Kosten <strong>54 €</strong>, Fixkosten <strong>72.000 €</strong>.<br>Der Preis wird auf <strong>81 €</strong> gesenkt (variable Kosten bleiben gleich).<br>a) Alter BEP in Stück?<br>b) Neuer BEP in Stück nach Preissenkung?</div>
+    <div class="input-row"><span class="input-label">a) Alter BEP in Stück</span><input class="ex-input" id="a9a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) Neuer BEP in Stück</span><input class="ex-input" id="a9b" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(9)">Prüfen</button>
+    <div class="feedback" id="f9"></div>
+  </div>
+
+  <!-- A10 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">10</span><span class="ex-type">Rückrechnung Menge</span></div>
+    <div class="ex-text">Ein Unternehmen erzielt einen <strong>Gewinn von 18.000 €</strong>. Die Fixkosten betragen <strong>42.000 €</strong>, der Stück-DB beträgt <strong>20 €</strong>.<br>Wie viele Stück wurden verkauft?</div>
+    <div class="input-row"><span class="input-label">Verkaufte Menge in Stück</span><input class="ex-input" id="a10" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(10)">Prüfen</button>
+    <div class="feedback" id="f10"></div>
+  </div>
+
+  <!-- A11 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">11</span><span class="ex-type">Variable Kosten als Prozentsatz</span></div>
+    <div class="ex-text">Der Umsatz pro Stück beträgt <strong>200 €</strong>. Die variablen Kosten entsprechen <strong>65 %</strong> des Verkaufspreises. Die Fixkosten belaufen sich auf <strong>105.000 €</strong>.<br>a) Wie hoch sind die variablen Kosten pro Stück?<br>b) Wie hoch ist der BEP in Stück?</div>
+    <div class="input-row"><span class="input-label">a) Variable Kosten in €/Stück</span><input class="ex-input" id="a11a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) BEP in Stück</span><input class="ex-input" id="a11b" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(11)">Prüfen</button>
+    <div class="feedback" id="f11"></div>
+  </div>
+
+  <!-- A12 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">12</span><span class="ex-type">Fixkostenerhöhung</span></div>
+    <div class="ex-text">Bisher: Fixkosten <strong>60.000 €</strong>, Stück-DB <strong>25 €</strong>.<br>Die Fixkosten steigen auf <strong>75.000 €</strong> (z.B. durch eine neue Maschine).<br>a) Alter BEP in Stück?<br>b) Neuer BEP in Stück?<br>c) Um wie viele Stück steigt der BEP?</div>
+    <div class="input-row"><span class="input-label">a) Alter BEP in Stück</span><input class="ex-input" id="a12a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) Neuer BEP in Stück</span><input class="ex-input" id="a12b" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">c) Erhöhung um Stück</span><input class="ex-input" id="a12c" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(12)">Prüfen</button>
+    <div class="feedback" id="f12"></div>
+  </div>
+
+  <!-- A13 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">13</span><span class="ex-type">BEP-Umsatz über DBQ</span></div>
+    <div class="ex-text">Gegeben: Fixkosten <strong>45.000 €</strong>, Verkaufspreis <strong>150 €/Stück</strong>, variable Kosten <strong>90 €/Stück</strong>.<br>a) Wie hoch ist die DB-Quote?<br>b) Wie hoch ist der BEP in € (Umsatz)?<br>c) Wie viele Stück entspricht das?</div>
+    <div class="input-row"><span class="input-label">a) DB-Quote in %</span><input class="ex-input" id="a13a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) BEP-Umsatz in €</span><input class="ex-input" id="a13b" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">c) BEP-Menge in Stück</span><input class="ex-input" id="a13c" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(13)">Prüfen</button>
+    <div class="feedback" id="f13"></div>
+  </div>
+
+  <!-- A14 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">14</span><span class="ex-type">Max. variable Kosten für Ziel-BEP</span></div>
+    <div class="ex-text">Ein Unternehmen möchte den Break-Even-Point bei maximal <strong>4.000 Stück</strong> erreichen. Der Verkaufspreis beträgt <strong>65 €</strong>, die Fixkosten <strong>80.000 €</strong>.<br>Wie hoch dürfen die variablen Kosten pro Stück maximal sein?</div>
+    <div class="input-row"><span class="input-label">Maximale kv in €/Stück</span><input class="ex-input" id="a14" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(14)">Prüfen</button>
+    <div class="feedback" id="f14"></div>
+  </div>
+
+  <!-- A15 -->
+  <div class="ex-card">
+    <div class="ex-meta"><span class="ex-num">15</span><span class="ex-type">Vollständige Analyse</span></div>
+    <div class="ex-text">Ein Betrieb produziert Stühle. Verkaufspreis: <strong>180 €</strong>, variable Kosten: <strong>108 €</strong>, Fixkosten: <strong>144.000 €</strong>, aktuelle Absatzmenge: <strong>2.500 Stück</strong>.<br>a) Stück-DB in €?<br>b) BEP in Stück?<br>c) Gewinn bei aktueller Menge in €?<br>d) Sicherheitsquote in %?</div>
+    <div class="input-row"><span class="input-label">a) Stück-DB in €</span><input class="ex-input" id="a15a" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">b) BEP in Stück</span><input class="ex-input" id="a15b" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">c) Gewinn in €</span><input class="ex-input" id="a15c" type="number" placeholder="?"></div>
+    <div class="input-row"><span class="input-label">d) Sicherheitsquote in %</span><input class="ex-input" id="a15d" type="number" placeholder="?"></div>
+    <button class="check-btn" onclick="check(15)">Prüfen</button>
+    <div class="feedback" id="f15"></div>
+  </div>
+
+</div>
+
+<!-- ══════════════ RECHNER ══════════════ -->
+<div class="section" id="rechner">
+  <div class="section-heading">Interaktiver Rechner</div>
+  <p class="section-sub">Werte eingeben – alle Kennzahlen werden sofort berechnet. Ideal zum Nachvollziehen und Ausprobieren.</p>
+
+  <div class="calc-grid">
+    <div class="calc-card">
+      <h3>Eingaben</h3>
+      <div class="calc-row"><label>Verkaufspreis p (€/Stück)</label><input class="calc-input" id="cp" type="number" value="100" oninput="calc()"></div>
+      <div class="calc-row"><label>Variable Kosten kv (€/Stück)</label><input class="calc-input" id="ckv" type="number" value="60" oninput="calc()"></div>
+      <div class="calc-row"><label>Fixkosten Kf (€)</label><input class="calc-input" id="ckf" type="number" value="80000" oninput="calc()"></div>
+      <div class="calc-row"><label>Absatzmenge x (Stück)</label><input class="calc-input" id="cx" type="number" value="3000" oninput="calc()"></div>
+      <div class="result-card" id="calc-out"></div>
+    </div>
+    <div class="calc-card">
+      <h3>Formeln</h3>
+      <ul class="formula-list">
+        <li><div class="f-name">Stück-Deckungsbeitrag</div><div class="f-expr"><span class="hi">db</span> = p − kv</div></li>
+        <li><div class="f-name">Gesamt-Deckungsbeitrag</div><div class="f-expr"><span class="hi">DB</span> = db × x</div></li>
+        <li><div class="f-name">Deckungsbeitragsquote</div><div class="f-expr"><span class="hi">DBQ</span> = db / p × 100</div></li>
+        <li><div class="f-name">Break-Even-Menge</div><div class="f-expr"><span class="hi">BEP</span> = Kf / db</div></li>
+        <li><div class="f-name">Break-Even-Umsatz</div><div class="f-expr"><span class="hi">BEP€</span> = Kf / DBQ × 100</div></li>
+        <li><div class="f-name">Gewinn / Verlust</div><div class="f-expr"><span class="hi">G</span> = DB − Kf</div></li>
+        <li><div class="f-name">Sicherheitsmenge</div><div class="f-expr"><span class="hi">S</span> = x − BEP</div></li>
+        <li><div class="f-name">Zielgewinnmenge</div><div class="f-expr"><span class="hi">x</span> = (Kf + G<sub>Ziel</sub>) / db</div></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+</main>
+
+<script>
+/* ── Tab switching ── */
+function showTab(id, btn) {
+  document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  btn.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+/* ── Progress tracking ── */
+const solved = new Set();
+function markSolved(n) {
+  solved.add(n);
+  const pct = Math.round(solved.size / 15 * 100);
+  document.getElementById('prog-fill').style.width = pct + '%';
+  document.getElementById('prog-text').textContent = solved.size + ' / 15 gelöst';
+}
+
+/* ── Feedback helper ── */
+function fb(id, ok, html) {
+  const el = document.getElementById('f' + id);
+  el.style.display = 'block';
+  el.className = 'feedback ' + (ok ? 'fb-ok' : 'fb-err');
+  el.innerHTML = html;
+  if (ok) markSolved(id);
+}
+function near(a, b, tol) { return Math.abs(a - b) <= (tol ?? 1); }
+function fmt(n) { return Number(n).toLocaleString('de-DE'); }
+
+/* ── Checks ── */
+function check(n) {
+  const v = id => parseFloat(document.getElementById(id).value);
+  switch(n) {
+    case 1: {
+      const a = v('a1a'), b = v('a1b');
+      const ok = near(a, 45) && near(b, 37.5, .5);
+      fb(1, ok, ok
+        ? '✓ Korrekt! db = 120 − 75 = <strong>45 €</strong> &nbsp;|&nbsp; DBQ = 45 / 120 × 100 = <strong>37,5 %</strong>'
+        : '✗ Tipp: db = p − kv = 120 − 75 = 45 € &nbsp;|&nbsp; DBQ = 45 / 120 × 100 = 37,5 %');
+      break;
+    }
+    case 2: {
+      const a = v('a2a'), b = v('a2b');
+      const ok = near(a, 3000) && near(b, 150000, 5);
+      fb(2, ok, ok
+        ? '✓ Korrekt! db = 50 − 20 = 30 € &nbsp;|&nbsp; BEP = 90.000 / 30 = <strong>3.000 Stück</strong> &nbsp;|&nbsp; BEP-Umsatz = 3.000 × 50 = <strong>150.000 €</strong>'
+        : '✗ Tipp: db = 50 − 20 = 30 € &nbsp;|&nbsp; BEP = Kf / db = 90.000 / 30 = 3.000 Stück &nbsp;|&nbsp; BEP-Umsatz = 3.000 × 50 = 150.000 €');
+      break;
+    }
+    case 3: {
+      const a = v('a3');
+      const ok = near(a, 20000, 1);
+      fb(3, ok, ok
+        ? '✓ Korrekt! DB = 40 × 2.000 = 80.000 € &nbsp;|&nbsp; G = 80.000 − 60.000 = <strong>20.000 €</strong>'
+        : '✗ Tipp: G = DB − Kf = (40 × 2.000) − 60.000 = 80.000 − 60.000 = 20.000 €');
+      break;
+    }
+    case 4: {
+      const a = v('a4');
+      const ok = near(a, 5000, 1);
+      fb(4, ok, ok
+        ? '✓ Korrekt! x = (Kf + G) / db = (50.000 + 25.000) / 15 = 75.000 / 15 = <strong>5.000 Stück</strong>'
+        : '✗ Tipp: x = (Kf + Zielgewinn) / db = (50.000 + 25.000) / 15 = 5.000 Stück');
+      break;
+    }
+    case 5: {
+      const a = v('a5a'), b = v('a5b');
+      const db = 400000 * 0.35;
+      const g  = db - 100000;
+      const ok = near(a, db, 5) && near(b, g, 5);
+      fb(5, ok, ok
+        ? '✓ Korrekt! DB = 400.000 × 35 % = <strong>140.000 €</strong> &nbsp;|&nbsp; G = 140.000 − 100.000 = <strong>40.000 €</strong>'
+        : '✗ Tipp: DB = Umsatz × DBQ = 400.000 × 0,35 = 140.000 € &nbsp;|&nbsp; G = DB − Kf = 140.000 − 100.000 = 40.000 €');
+      break;
+    }
+    case 6: {
+      const a = v('a6');
+      const ok = near(a, 80, 0);
+      fb(6, ok, ok
+        ? '✓ Korrekt! p = kv + db = 48 + 32 = <strong>80 €</strong>'
+        : '✗ Tipp: p = kv + db (Mindest-db) = 48 + 32 = 80 €');
+      break;
+    }
+    case 7: {
+      const a = v('a7a'), b = v('a7b'), c = v('a7c');
+      const dbA = 28, dbB = 36;
+      const dbqA = dbA/80*100, dbqB = dbB/130*100;
+      const higherQ = Math.max(dbqA, dbqB);
+      const okA = near(a, dbA, 0), okB = near(b, dbB, 0), okC = near(c, higherQ, .5);
+      fb(7, okA && okB && okC, (okA && okB && okC)
+        ? `✓ Korrekt! dbA = 80 − 52 = <strong>28 €</strong> (DBQ: ${dbqA.toFixed(1)} %) &nbsp;|&nbsp; dbB = 130 − 94 = <strong>36 €</strong> (DBQ: ${dbqB.toFixed(1)} %) &nbsp;|&nbsp; Produkt A hat die höhere DBQ mit <strong>${dbqA.toFixed(1)} %</strong>`
+        : `✗ Tipp: dbA = 80 − 52 = 28 € → DBQ A = 28/80 × 100 = ${dbqA.toFixed(1)} % &nbsp;|&nbsp; dbB = 130 − 94 = 36 € → DBQ B = 36/130 × 100 = ${dbqB.toFixed(1)} % &nbsp;|&nbsp; Besser: Produkt A (${dbqA.toFixed(1)} %)`);
+      break;
+    }
+    case 8: {
+      const a = v('a8a'), b = v('a8b');
+      const sm = 1400, sq = (1400/3500*100);
+      const ok = near(a, sm, 0) && near(b, sq, .5);
+      fb(8, ok, ok
+        ? '✓ Korrekt! S<sub>Menge</sub> = 3.500 − 2.100 = <strong>1.400 Stück</strong> &nbsp;|&nbsp; S<sub>Quote</sub> = 1.400 / 3.500 × 100 = <strong>40 %</strong>'
+        : '✗ Tipp: Sicherheitsmenge = x − BEP = 3.500 − 2.100 = 1.400 Stück &nbsp;|&nbsp; Sicherheitsquote = 1.400 / 3.500 × 100 = 40 %');
+      break;
+    }
+    case 9: {
+      const a = v('a9a'), b = v('a9b');
+      const dbAlt = 90 - 54, dbNeu = 81 - 54;
+      const bepAlt = 72000 / dbAlt, bepNeu = 72000 / dbNeu;
+      const ok = near(a, bepAlt, 0) && near(b, bepNeu, 0);
+      fb(9, ok, ok
+        ? `✓ Korrekt! Alter db = 90 − 54 = 36 € → BEP alt = 72.000 / 36 = <strong>2.000 Stück</strong> &nbsp;|&nbsp; Neuer db = 81 − 54 = 27 € → BEP neu = 72.000 / 27 = <strong>2.667 Stück</strong>`
+        : `✗ Tipp: db alt = 90 − 54 = 36 € → BEP alt = 72.000 / 36 = 2.000 Stück &nbsp;|&nbsp; db neu = 81 − 54 = 27 € → BEP neu = 72.000 / 27 = 2.667 Stück`);
+      break;
+    }
+    case 10: {
+      const a = v('a10');
+      const x = (42000 + 18000) / 20;
+      const ok = near(a, x, 0);
+      fb(10, ok, ok
+        ? '✓ Korrekt! G = DB − Kf → DB = G + Kf = 18.000 + 42.000 = 60.000 € &nbsp;|&nbsp; x = DB / db = 60.000 / 20 = <strong>3.000 Stück</strong>'
+        : '✗ Tipp: DB = Gewinn + Kf = 18.000 + 42.000 = 60.000 € &nbsp;|&nbsp; x = DB / db = 60.000 / 20 = 3.000 Stück');
+      break;
+    }
+    case 11: {
+      const a = v('a11a'), b = v('a11b');
+      const kv = 200 * 0.65, db = 200 - kv, bep = 105000 / db;
+      const ok = near(a, kv, .5) && near(b, bep, 0);
+      fb(11, ok, ok
+        ? `✓ Korrekt! kv = 200 × 65 % = <strong>130 €</strong> &nbsp;|&nbsp; db = 200 − 130 = 70 € &nbsp;|&nbsp; BEP = 105.000 / 70 = <strong>1.500 Stück</strong>`
+        : `✗ Tipp: kv = 200 × 0,65 = 130 € &nbsp;|&nbsp; db = 200 − 130 = 70 € &nbsp;|&nbsp; BEP = Kf / db = 105.000 / 70 = 1.500 Stück`);
+      break;
+    }
+    case 12: {
+      const a = v('a12a'), b = v('a12b'), c = v('a12c');
+      const bepA = 60000/25, bepB = 75000/25, diff = bepB - bepA;
+      const ok = near(a, bepA, 0) && near(b, bepB, 0) && near(c, diff, 0);
+      fb(12, ok, ok
+        ? `✓ Korrekt! BEP alt = 60.000 / 25 = <strong>2.400 Stück</strong> &nbsp;|&nbsp; BEP neu = 75.000 / 25 = <strong>3.000 Stück</strong> &nbsp;|&nbsp; Erhöhung um <strong>600 Stück</strong>`
+        : `✗ Tipp: BEP alt = 60.000 / 25 = 2.400 &nbsp;|&nbsp; BEP neu = 75.000 / 25 = 3.000 &nbsp;|&nbsp; Differenz = 600 Stück`);
+      break;
+    }
+    case 13: {
+      const a = v('a13a'), b = v('a13b'), c = v('a13c');
+      const db = 60, dbq = 60/150*100, bepU = 45000/dbq*100, bepM = 45000/db;
+      const ok = near(a, dbq, .5) && near(b, bepU, 5) && near(c, bepM, 0);
+      fb(13, ok, ok
+        ? `✓ Korrekt! db = 150 − 90 = 60 € &nbsp;|&nbsp; DBQ = 60/150 × 100 = <strong>40 %</strong> &nbsp;|&nbsp; BEP-Umsatz = 45.000 / 0,40 = <strong>112.500 €</strong> &nbsp;|&nbsp; BEP-Menge = 45.000 / 60 = <strong>750 Stück</strong>`
+        : `✗ Tipp: db = 150 − 90 = 60 € → DBQ = 40 % → BEP-Umsatz = 45.000 / 0,40 = 112.500 € → BEP-Menge = 112.500 / 150 = 750 Stück`);
+      break;
+    }
+    case 14: {
+      const a = v('a14');
+      const db_min = 80000 / 4000;
+      const kv_max = 65 - db_min;
+      const ok = near(a, kv_max, .5);
+      fb(14, ok, ok
+        ? `✓ Korrekt! Mindest-db = Kf / BEP = 80.000 / 4.000 = 20 € &nbsp;|&nbsp; kv<sub>max</sub> = p − db<sub>min</sub> = 65 − 20 = <strong>45 €</strong>`
+        : `✗ Tipp: Mindest-db = Kf / BEP-Ziel = 80.000 / 4.000 = 20 € &nbsp;|&nbsp; kv max = 65 − 20 = 45 €`);
+      break;
+    }
+    case 15: {
+      const a = v('a15a'), b = v('a15b'), c = v('a15c'), d = v('a15d');
+      const db = 72, bep = 2000, g = (2500 - 2000) * 72, sq = 500/2500*100;
+      const ok = near(a, db, 0) && near(b, bep, 0) && near(c, g, 5) && near(d, sq, .5);
+      fb(15, ok, ok
+        ? `✓ Korrekt! db = 180 − 108 = <strong>72 €</strong> &nbsp;|&nbsp; BEP = 144.000 / 72 = <strong>2.000 Stück</strong> &nbsp;|&nbsp; G = (2.500 − 2.000) × 72 = <strong>36.000 €</strong> &nbsp;|&nbsp; Sicherheitsquote = 500 / 2.500 × 100 = <strong>20 %</strong>`
+        : `✗ Tipp: db = 180 − 108 = 72 € | BEP = 144.000 / 72 = 2.000 | G = 500 × 72 = 36.000 € | S-Quote = 500/2500 × 100 = 20 %`);
+      break;
+    }
+  }
+}
+
+/* ── Calculator ── */
+function calc() {
+  const p  = parseFloat(document.getElementById('cp').value)  || 0;
+  const kv = parseFloat(document.getElementById('ckv').value) || 0;
+  const kf = parseFloat(document.getElementById('ckf').value) || 0;
+  const x  = parseFloat(document.getElementById('cx').value)  || 0;
+  const db  = p - kv;
+  const dbq = p > 0 ? db / p * 100 : 0;
+  const bep = db > 0 ? kf / db : Infinity;
+  const bepU = dbq > 0 ? kf / dbq * 100 : Infinity;
+  const gDB = db * x;
+  const g   = gDB - kf;
+  const sm  = x - bep;
+  const sq  = x > 0 ? sm / x * 100 : 0;
+
+  const row = (k, v, cls='') =>
+    `<div class="result-row"><span class="result-key">${k}</span><span class="result-val ${cls}">${v}</span></div>`;
+
+  document.getElementById('calc-out').innerHTML =
+    row('Stück-DB (db)', db.toFixed(2) + ' €') +
+    row('DB-Quote', dbq.toFixed(1) + ' %') +
+    row('Gesamt-DB', fmt(gDB) + ' €') +
+    row('BEP-Menge', isFinite(bep) ? fmt(Math.ceil(bep)) + ' Stück' : '—') +
+    row('BEP-Umsatz', isFinite(bepU) ? fmt(Math.round(bepU)) + ' €' : '—') +
+    row('Gewinn / Verlust', fmt(Math.round(g)) + ' €', g >= 0 ? 'pos' : 'neg') +
+    row('Sicherheitsmenge', isFinite(bep) ? fmt(Math.round(sm)) + ' Stück' : '—') +
+    row('Sicherheitsquote', isFinite(bep) && x > 0 ? sq.toFixed(1) + ' %' : '—');
+}
+
+calc();
+</script>
+</body>
+</html>
